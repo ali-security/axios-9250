@@ -179,15 +179,11 @@ describe('adapter (vitest browser)', () => {
     await responsePromise;
   });
 
-  it('should reject request headers containing CRLF characters', async () => {
-    await expect(
-      axios('/foo', {
-        headers: {
-          'x-test': 'ok\r\nInjected: yes',
-        },
-      })
-    ).rejects.toThrow(/Invalid character in header content/);
-
-    expect(requests.length).toBe(0);
+  it('should sanitize request headers containing CRLF characters', function () {
+    const { AxiosHeaders } = axios;
+    const headers = new AxiosHeaders({
+      'x-test': 'ok\r\nInjected: yes',
+    });
+    expect(headers.get('x-test')).toBe('okInjected: yes');
   });
 });

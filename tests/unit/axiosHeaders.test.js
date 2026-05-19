@@ -103,20 +103,16 @@ describe('AxiosHeaders', () => {
       }
     );
 
-    it('should throw on CRLF in header value', () => {
+    it('should sanitize CRLF in header value', function () {
       const headers = new AxiosHeaders();
-
-      assert.throws(() => {
-        headers.set('x-test', 'safe\r\nInjected: true');
-      }, /Invalid character in header content/);
+      headers.set('x-test', 'safe\r\nInjected: true');
+      assert.strictEqual(headers.get('x-test'), 'safeInjected: true');
     });
 
-    it('should throw on CRLF in any array header value', () => {
+    it('should sanitize CRLF in any array header value', function () {
       const headers = new AxiosHeaders();
-
-      assert.throws(() => {
-        headers.set('set-cookie', ['safe=1', 'unsafe=1\nInjected: true']);
-      }, /Invalid character in header content/);
+      headers.set('set-cookie', ['safe=1', 'unsafe=1\nInjected: true']);
+      assert.deepStrictEqual(headers.get('set-cookie'), ['safe=1', 'unsafe=1Injected: true']);
     });
   });
 
@@ -511,6 +507,20 @@ describe('AxiosHeaders', () => {
 
     it('should return empty set-cookie', () => {
       assert.deepStrictEqual(new AxiosHeaders().getSetCookie(), []);
+    });
+  });
+
+  describe('header value sanitization (GHSA-fvcv-3m26-pcqx)', function () {
+    it('should sanitize invalid characters in header value', function () {
+      const headers = new AxiosHeaders();
+      headers.set('x-test', '\t safe\r\nInjected: true \x00');
+      assert.strictEqual(headers.get('x-test'), 'safeInjected: true');
+    });
+
+    it('should sanitize invalid characters in any array header value', function () {
+      const headers = new AxiosHeaders();
+      headers.set('set-cookie', ['safe=1', ' \tunsafe=1\nInjected: true\r\n ']);
+      assert.deepStrictEqual(headers.get('set-cookie'), ['safe=1', 'unsafe=1Injected: true']);
     });
   });
 });

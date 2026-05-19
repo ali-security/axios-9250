@@ -1,6 +1,9 @@
 name: Continuous integration
 
 on:
+  push:
+    branches:
+      - 'v1.x'
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -39,6 +42,7 @@ jobs:
         run: npm pack
       - name: Dependency Review
         uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48 # v4.9.0
+        if: github.event_name == 'pull_request'
       - name: Upload npm pack artifact
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:

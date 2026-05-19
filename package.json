@@ -118,7 +118,8 @@
     "examples": "node ./examples/server.js",
     "lint": "eslint lib/**/*.js",
     "fix": "eslint --fix lib/**/*.js",
-    "prepare": "husky"
+    "prepare": "husky",
+    "prepack": "npm run build"
   },
   "dependencies": {
     "follow-redirects": "^1.15.11",
